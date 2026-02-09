@@ -1,0 +1,97 @@
+{
+"variables": {
+  "workdir": "{{env `PWD`}}"
+},
+  "builders": [
+    {
+      "type": "qemu",
+      "vm_name": "windows-server-2022",
+      "iso_url": "file://{{user `workdir`}}/SERVER_EVAL_x64FRE_en-us.iso",
+      "iso_checksum": "sha256:3e4fa6d8507b554856fc9ca6079cc402df11a8b79344871669f0251535255325",
+      "memory": 4096,
+      "disk_image": false,
+      "output_directory": "build/os-base",
+      "accelerator": "kvm",
+      "disk_size": 51200,
+      "disk_interface": "ide",
+      "format": "qcow2",
+      "net_device": "e1000",
+      "vnc_bind_address": "0.0.0.0",
+      "boot_command": [
+        "<wait><wait><spacebar>"
+      ],
+      "boot_wait": "5s",
+      "floppy_files": [
+        "./floppy/Autounattend.xml"
+      ],
+      "floppy_dirs": [
+        "./floppy"
+      ],
+      "communicator": "winrm",
+      "winrm_username": "packer",
+      "winrm_password": "PackerPassw0rd!",
+      "winrm_port": 5985,
+      "winrm_use_ssl": false,
+      "winrm_insecure": true,
+      "winrm_timeout": "6h",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "headless": true,
+
+      "qemuargs": [
+        ["-m", "4096M"],
+        ["-smp", "2"]
+
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{user `workdir`}}/Scripts/CloudBase-init-Install.ps1",
+      "destination": "C:\\Windows\\Temp\\CloudBase-init-Install.ps1"
+    },
+    {
+      "type": "file",
+      "source": "{{user `workdir`}}/Scripts/prep-sysprep.ps1",
+      "destination": "C:\\Windows\\Temp\\prep-sysprep.ps1"
+    },
+    {
+      "type": "file",
+      "source": "{{user `workdir`}}/Scripts/cloudbase-init-conf",
+      "destination": "C:\\Windows\\Temp"
+    },
+    {
+      "type": "powershell",
+      "inline": [
+        "$url = 'https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso'",
+        "$dest = 'C:\\Windows\\Temp\\virtio-win.iso'",
+        "Invoke-WebRequest -Uri $url -OutFile $dest",
+        "$mount = Mount-DiskImage -ImagePath $dest -PassThru",
+        "$drive = ($mount | Get-Volume).DriveLetter + ':'",
+        "$paths = @(",
+        "  'viostor\\2k22\\amd64',",
+        "  'vioscsi\\2k22\\amd64',",
+        "  'NetKVM\\2k22\\amd64',",
+        "  'Balloon\\2k22\\amd64',",
+        "  'vioserial\\2k22\\amd64'",
+        ")",
+        "foreach ($p in $paths) {",
+        "  $full = Join-Path $drive $p",
+        "  if (Test-Path $full) { pnputil /add-driver \"$full\\*.inf\" /subdirs /install }",
+        "}",
+        "Dismount-DiskImage -ImagePath $dest"
+      ]
+    },
+    {
+      "type": "powershell",
+      "inline": [
+        "Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope LocalMachine -Force",
+        "& 'C:\\Windows\\Temp\\CloudBase-init-Install.ps1'",
+        "& 'C:\\Windows\\Temp\\prep-sysprep.ps1'",
+        "C:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown \"/unattend:C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\conf\\Unattend.xml\"",
+        "Write-Host 'Windows Server 2022 base image ready.'"
+      ]
+    }
+  ]
+}
+
