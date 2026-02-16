@@ -3,6 +3,8 @@
 
 $ErrorActionPreference = "Stop"
 
+$enableShrink = $true
+
 function Get-RecoveryPartitions {
     $recoveryGptType = "{DE94BBA4-06D1-4D40-A16A-BFD50179D6AC}"
     $parts = Get-Partition | Where-Object {
@@ -28,11 +30,12 @@ foreach ($part in $recoveryParts) {
 }
 
 # Shrink C: to minimum supported size.
-$osPartition = Get-Partition -DriveLetter C
-$supported = Get-PartitionSupportedSize -DriveLetter C
-
-if ($osPartition.Size -gt $supported.SizeMin) {
-    Resize-Partition -DriveLetter C -Size $supported.SizeMin
+if ($enableShrink) {
+    $osPartition = Get-Partition -DriveLetter C
+    $supported = Get-PartitionSupportedSize -DriveLetter C
+    if ($osPartition.Size -gt $supported.SizeMin) {
+        Resize-Partition -DriveLetter C -Size $supported.SizeMin
+    }
 }
 
 # Additional cleanup to reduce QCOW2 export size.
@@ -41,7 +44,7 @@ powercfg /hibernate off | Out-Null
 Dism.exe /Online /Cleanup-Image /StartComponentCleanup /ResetBase | Out-Null
 
 Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
-Remove-Item -Path "C:\Windows\Temp\*" -Recurse -Force -ErrorAction SilentlyContinue
+# Keep Windows Temp so Packer's shutdown command scripts remain available.
 
 # Zero free space so the QCOW2 export can sparsify it.
 cipher /w:C | Out-Null

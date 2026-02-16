@@ -1,5 +1,5 @@
 # Cloudbase-init MSI install (silent) + copy config files
-$MsiUrl = "https://github.com/cloudbase/cloudbase-init/releases/download/1.1.6/CloudbaseInitSetup_1_1_6_x64.msi"
+$MsiUrl = "http://192.168.1.9:8080/drivers/CloudbaseInitSetup_1_1_6_x64.msi"
 
 $SourceDir = "C:\\Windows\\Temp\\cloudbase-init-conf"
 $DestDir = "C:\Program Files\Cloudbase Solutions\Cloudbase-Init\conf"  # change if needed

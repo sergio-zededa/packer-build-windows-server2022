@@ -12,7 +12,7 @@
       "disk_image": false,
       "output_directory": "build/os-base",
       "accelerator": "kvm",
-      "disk_size": 51200,
+      "disk_size": 18432,
       "disk_interface": "ide",
       "format": "qcow2",
       "net_device": "e1000",
@@ -34,7 +34,8 @@
       "winrm_use_ssl": false,
       "winrm_insecure": true,
       "winrm_timeout": "6h",
-      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "shutdown_command": "powershell -ExecutionPolicy Bypass -Command \"if (-not (Test-Path 'C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\conf\\Unattend.xml')) { throw 'Unattend.xml missing for Sysprep' }; Copy-Item -Path 'C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\conf\\Unattend.xml' -Destination 'C:\\Windows\\Temp\\Unattend.xml' -Force; & 'C:\\Windows\\System32\\Sysprep\\sysprep.exe' /generalize /oobe /shutdown /unattend:C:\\Windows\\Temp\\Unattend.xml\"",
+      "shutdown_timeout": "2h",
       "headless": true,
 
       "qemuargs": [
@@ -63,7 +64,7 @@
     {
       "type": "powershell",
       "inline": [
-        "$url = 'https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/stable-virtio/virtio-win.iso'",
+        "$url = 'http://192.168.1.9:8080/drivers/virtio-win.iso'",
         "$dest = 'C:\\Windows\\Temp\\virtio-win.iso'",
         "Invoke-WebRequest -Uri $url -OutFile $dest",
         "$mount = Mount-DiskImage -ImagePath $dest -PassThru",
@@ -87,11 +88,10 @@
       "inline": [
         "Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope LocalMachine -Force",
         "& 'C:\\Windows\\Temp\\CloudBase-init-Install.ps1'",
-        "& 'C:\\Windows\\Temp\\prep-sysprep.ps1'",
-        "C:\\Windows\\System32\\Sysprep\\sysprep.exe /generalize /oobe /shutdown \"/unattend:C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\conf\\Unattend.xml\"",
-        "Write-Host 'Windows Server 2022 base image ready.'"
+        "& 'C:\\Windows\\Temp\\prep-sysprep.ps1'"
       ]
     }
   ]
+
 }
 

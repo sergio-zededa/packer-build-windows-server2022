@@ -14,7 +14,7 @@ This folder contains a legacy JSON Packer template that builds a Windows Server 
 
 - Packer installed (JSON templates still supported)
 - QEMU/KVM installed and working
-- Enough disk space for a 50 GB image
+- Enough disk space for a ~20 GB image
 - The Windows Server 2022 ISO copied into this directory
 
 ## Required files
@@ -47,7 +47,8 @@ PWD=/path/to/packer-windows-builder packer build winserver2k22_build.json
 
 - WinRM runs over HTTP on port 5985 during the build.
 - The template binds VNC to 0.0.0.0; adjust if you need to limit access.
-- The VirtIO ISO is downloaded each run from the Fedora people site.
+- The VirtIO ISO is downloaded each run from `http://192.168.1.9:8080/drivers/virtio-win.iso`.
+- The build uses an 18 GB qcow2 disk (Packer `disk_size` is 18432 MB).
 
 ## Output
 
