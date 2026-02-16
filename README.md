@@ -17,6 +17,29 @@ This folder contains a legacy JSON Packer template that builds a Windows Server 
 - Enough disk space for a ~20 GB image
 - The Windows Server 2022 ISO copied into this directory
 
+## Install Packer (Linux)
+
+Requirements:
+
+- `curl`, `gpg`, `unzip`, and `sudo`
+
+Ubuntu/Debian (HashiCorp APT repo):
+
+```bash
+sudo apt-get update
+sudo apt-get install -y curl gpg unzip
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list > /dev/null
+sudo apt-get update
+sudo apt-get install -y packer
+```
+
+Verify:
+
+```bash
+packer version
+```
+
 ## Required files
 
 Place these files in this directory (the same directory as the JSON template):
@@ -53,3 +76,5 @@ PWD=/path/to/packer-windows-builder packer build winserver2k22_build.json
 ## Output
 
 After a successful build, the qcow2 image is in `build/os-base/`.
+
+The post-processor creates a compressed qcow2 at `build/os-base/windows-server-2022_compressed.qcow2` and removes the original uncompressed file.
