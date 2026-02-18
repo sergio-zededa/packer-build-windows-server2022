@@ -34,7 +34,7 @@
       "winrm_use_ssl": false,
       "winrm_insecure": true,
       "winrm_timeout": "6h",
-      "shutdown_command": "powershell -ExecutionPolicy Bypass -Command \"if (-not (Test-Path 'C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\conf\\Unattend.xml')) { throw 'Unattend.xml missing for Sysprep' }; Copy-Item -Path 'C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\conf\\Unattend.xml' -Destination 'C:\\Windows\\Temp\\Unattend.xml' -Force; & 'C:\\Windows\\System32\\Sysprep\\sysprep.exe' /generalize /oobe /shutdown /unattend:C:\\Windows\\Temp\\Unattend.xml\"",
+      "shutdown_command": "powershell -ExecutionPolicy Bypass -Command \"if (-not (Test-Path 'C:\\Windows\\Temp\\cloudbase-init-conf\\Unattend.xml')) { throw 'Unattend.xml missing for Sysprep' }; Remove-Item -Recurse -Force 'C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\log\\*' -ErrorAction SilentlyContinue; & 'C:\\Windows\\System32\\Sysprep\\sysprep.exe' /generalize /shutdown /oobe /unattend:'C:\\Windows\\Temp\\cloudbase-init-conf\\Unattend.xml'\"",
       "shutdown_timeout": "2h",
       "headless": true,
 
