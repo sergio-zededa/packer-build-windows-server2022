@@ -62,6 +62,11 @@
       "destination": "C:\\Windows\\Temp"
     },
     {
+      "type": "file",
+      "source": "{{user `workdir`}}/Scripts/mount_PV_disk.ps1",
+      "destination": "C:\\Windows\\Temp\\mount_PV_disk.ps1"
+    },
+    {
       "type": "powershell",
       "inline": [
         "$url = 'http://192.168.1.9:8080/drivers/virtio-win.iso'",
@@ -89,6 +94,13 @@
         "Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope LocalMachine -Force",
         "& 'C:\\Windows\\Temp\\CloudBase-init-Install.ps1'",
         "& 'C:\\Windows\\Temp\\prep-sysprep.ps1'"
+      ]
+    },
+    {
+      "type": "powershell",
+      "inline": [
+        "New-Item -ItemType Directory -Path 'C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\LocalScripts' -Force -ErrorAction SilentlyContinue",
+        "Copy-Item 'C:\\Windows\\Temp\\mount_PV_disk.ps1' 'C:\\Program Files\\Cloudbase Solutions\\Cloudbase-Init\\LocalScripts\\mount_PV_disk.ps1' -Force"
       ]
     }
   ],

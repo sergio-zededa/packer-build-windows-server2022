@@ -40,6 +40,7 @@ Verify:
 packer version
 ```
 
+
 ## Required files
 
 Place these files in this directory (the same directory as the JSON template):
@@ -47,6 +48,7 @@ Place these files in this directory (the same directory as the JSON template):
 - `SERVER_EVAL_x64FRE_en-us.iso`
 - `Scripts/CloudBase-init-Install.ps1`
 - `Scripts/prep-sysprep.ps1`
+- `Scripts/mount_PV_disk.ps1`
 - `Scripts/cloudbase-init-conf`
 - `floppy/Autounattend.xml`
 
@@ -72,6 +74,16 @@ PWD=/path/to/packer-windows-builder packer build winserver2k22_build.json
 - The template binds VNC to 0.0.0.0; adjust if you need to limit access.
 - The VirtIO ISO is downloaded each run from `http://192.168.1.9:8080/drivers/virtio-win.iso`.
 - The build uses an 18 GB qcow2 disk (Packer `disk_size` is 18432 MB).
+
+## Additional disk auto-mount
+
+- The build copies `Scripts/mount_PV_disk.ps1` into Cloudbase-Init LocalScripts so it runs automatically on first boot.
+- The script checks for additional disks and handles them as follows:
+	- If a disk is offline, it attempts to clear read-only state and bring it online.
+	- If a disk is RAW (no filesystem), it initializes GPT, creates a partition, formats NTFS, and assigns drive letter `Z:`.
+	- If a volume already has a filesystem but no drive letter, it assigns drive letter `Z:`.
+- Script log file in the guest:
+	- `C:\Program Files\Cloudbase Solutions\Cloudbase-Init\LocalScripts\init_extra_disks.log`
 
 ## Output
 
