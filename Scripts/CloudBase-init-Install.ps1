@@ -15,7 +15,7 @@ $Username = "Admin"
 $UseMetadataPassword = $true
 $UserGroups = "Administrators"
 $SerialPort = ""  # empty = disabled
-$RunServiceAsLocalSystem = $false
+$RunServiceAsLocalSystem = $true
 
 $TempDir = Join-Path $env:TEMP "cloudbase-init"
 $MsiPath = Join-Path $TempDir "cloudbase-init.msi"
